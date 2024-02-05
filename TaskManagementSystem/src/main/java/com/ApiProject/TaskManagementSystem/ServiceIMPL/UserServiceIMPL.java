@@ -3,6 +3,7 @@ import com.ApiProject.TaskManagementSystem.DTO.TaskStatus;
 import com.ApiProject.TaskManagementSystem.Entities.Task;
 import com.ApiProject.TaskManagementSystem.Entities.User;
 import com.ApiProject.TaskManagementSystem.Exceptions.UserNotFoundException;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -19,4 +20,6 @@ public interface UserServiceIMPL {
     List<TaskStatus> getAllTasksStatusOfUser(Long userId) throws Exception;
 
     String deleteUser(Long userId) throws Exception;
+
+    Page<Task> getAllTasksPaginated(int page, int size);
 }

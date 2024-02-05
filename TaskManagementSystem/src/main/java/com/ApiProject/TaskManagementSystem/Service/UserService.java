@@ -6,11 +6,14 @@ import com.ApiProject.TaskManagementSystem.Entities.User;
 import com.ApiProject.TaskManagementSystem.Enums.Status;
 import com.ApiProject.TaskManagementSystem.Exceptions.TaskNotFoundException;
 import com.ApiProject.TaskManagementSystem.Exceptions.UserNotFoundException;
+import com.ApiProject.TaskManagementSystem.Repository.TaskRepository;
 import com.ApiProject.TaskManagementSystem.Repository.UserRepository;
 import com.ApiProject.TaskManagementSystem.ServiceIMPL.UserServiceIMPL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -20,6 +23,9 @@ public class UserService implements UserServiceIMPL {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     private static final Logger log= LoggerFactory.getLogger(UserService.class);
     @Override
@@ -38,6 +44,7 @@ public class UserService implements UserServiceIMPL {
         User user=optionalUser.get();
         if(user.getUserPassword().equals(oldPass)){
             user.setUserPassword(newPass);
+            userRepository.save(user);
             log.info("user password has been changed successfully");
             return "password has been changed successfully";
         }
@@ -54,6 +61,7 @@ public class UserService implements UserServiceIMPL {
         }
         User user=optionalUser.get();
         user.setUserName(userNewName);
+        userRepository.save(user);
         log.info("user name has been changed successfully");
         return "User Name changed successfully";
     }
@@ -94,6 +102,7 @@ public class UserService implements UserServiceIMPL {
         if(taskStatus.contains(currentTask.getTaskStatus().toString())){
             currentTask.setTaskStatus(Status.COMPLETED);
         }
+        userRepository.save(user);
         log.info("TaskStatus of the user task has been updated successfully");
         return "TaskStatus changed successfully";
     }
@@ -126,5 +135,10 @@ public class UserService implements UserServiceIMPL {
         userRepository.deleteByUserId(userId);
         log.info("user with id {} deleted successfully",userId);
         return "successfully deleted user";
+    }
+
+    @Override
+    public Page<Task> getAllTasksPaginated(int page, int size) {
+            return taskRepository.findAll(PageRequest.of(page, size));
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -104,5 +105,14 @@ public class UserController {
             log.error("Error occured while getting the status of the tasks of the user with userId {}:{}",userId,message.getMessage());
             return new ResponseEntity<>(message.getMessage(),HttpStatus.BAD_REQUEST);
         }
+    }
+    @GetMapping("/getAllTasksPaginated")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<Task>> getAllTasksPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<Task> tasks = userServiceIMPL.getAllTasksPaginated(page, size);
+        log.info("Retrieved paginated tasks: {}", tasks);
+        return ResponseEntity.ok(tasks);
     }
 }

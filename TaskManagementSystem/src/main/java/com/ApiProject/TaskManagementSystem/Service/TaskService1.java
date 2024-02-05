@@ -11,6 +11,8 @@ import com.ApiProject.TaskManagementSystem.ServiceIMPL.TaskServiceIMPL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,6 +32,7 @@ public class TaskService1 implements TaskServiceIMPL {
     private static final Logger log= LoggerFactory.getLogger(TaskService1.class);
     @Override
     public String addTask(Task task) {
+        task.setDueDate(LocalDate.now().plusDays(5));
         taskRepository.save(task);
         log.info("task is created");
         return "successfully Added task";
@@ -49,6 +52,8 @@ public class TaskService1 implements TaskServiceIMPL {
             }
             User user=optionalUser.get();
             user.getTaskList().add(task);
+            task.getUserList().add(user);
+            userRepository.save(user);
         }
         log.info("Task has been assigned to the users");
         return "Successfully assigned te task to users";
@@ -56,17 +61,14 @@ public class TaskService1 implements TaskServiceIMPL {
 
     @Override
     public Task updateTaskByTaskId(Task task, Integer taskId)throws Exception {
-        Optional<Task> optionalTask=taskRepository.findById(taskId);
-        if(optionalTask.isEmpty()){
-            throw new TaskNotFoundException("task with "+taskId+" not found");
-        }
-        Task currTask=optionalTask.get();
-        currTask.setTaskStatus(task.getTaskStatus());
-        currTask.setTitle(task.getTitle());
-        currTask.setDescription(task.getDescription());
-        currTask.setDueDate(task.getDueDate());
+        Task currtask = getTaskById(taskId);
+        currtask.setTaskStatus(task.getTaskStatus());
+        currtask.setDueDate(task.getDueDate());
+        currtask.setTitle(task.getTitle());
+        currtask.setDescription(task.getDescription());
+        taskRepository.save(currtask);
         log.info("Task updated successfully. Task ID: {}", taskId);
-        return currTask;
+        return currtask;
     }
 
     @Override
@@ -127,6 +129,13 @@ public class TaskService1 implements TaskServiceIMPL {
 
     @Override
     public List<Task> getTasksDueDateBefore(LocalDate date) {
+
         return taskRepository.findByDueDateBefore(date);
     }
+
+    @Override
+    public Page<Task> getAllTasksPaginated(int page, int size) {
+        return taskRepository.findAll(PageRequest.of(page, size));
+    }
+
 }

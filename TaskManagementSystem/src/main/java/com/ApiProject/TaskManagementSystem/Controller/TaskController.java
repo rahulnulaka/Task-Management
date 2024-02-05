@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -139,5 +140,13 @@ public class TaskController {
     public ResponseEntity<List<Task>> getTasksDueBefore(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
         List<Task> taskList=taskServiceIMPL.getTasksDueDateBefore(date);
         return new ResponseEntity<>(taskList,HttpStatus.OK);
+    }
+    @GetMapping("/getAllTasksPaginated")
+    public ResponseEntity<Page<Task>> getAllTasksPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<Task> tasks = taskServiceIMPL.getAllTasksPaginated(page, size);
+        log.info("Retrieved paginated tasks: {}", tasks);
+        return ResponseEntity.ok(tasks);
     }
 }

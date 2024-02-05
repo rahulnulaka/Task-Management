@@ -29,7 +29,7 @@ Task Management API is a RESTful service built with Java Spring Boot, utilizing 
 
 ### 3. Database
 
-- PostgreSQL is used as the database to store task data.
+- MySQL is used as the database to store task data.
 
 
 ### 5. Additional Features
